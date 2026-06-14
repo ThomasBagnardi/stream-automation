@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  localstack:
+    image: localstack/localstack:3.4.0
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+      - AWS_DEFAULT_REGION=us-east-1
+
+  app:
+    build:
+      context: .
+      dockerfile: v2_upgraded/Dockerfile
+    depends_on:
+      - localstack
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - AWS_ACCESS_KEY_ID=mock_key
+      - AWS_SECRET_ACCESS_KEY=mock_secret
+      - AWS_DEFAULT_REGION=us-east-1
