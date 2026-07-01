@@ -3,3 +3,5 @@ terraform/.terraform/
 .env
 __pycache__/
 *.log
+.streamlit/secrets.toml
+v2_upgraded/.env

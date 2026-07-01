@@ -7,7 +7,7 @@ import time
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
-from upload_payloads import upload_stream_data
+from v2_upgraded.upload_payloads import upload_stream_data
 
 load_dotenv()
 WATCH_DIR = os.getenv("WATCH_DIR", "./stream_drops")

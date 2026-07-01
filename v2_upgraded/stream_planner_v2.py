@@ -3,6 +3,13 @@ from datetime import date, datetime
 from pathlib import Path
 
 import boto3
+import streamlit as st
+from dotenv import load_dotenv
+
+dotenv_path = Path(__file__).parent.parent / ".env"
+load_dotenv(dotenv_path=dotenv_path)
+print(f"[DEBUG] Loading .env from: {dotenv_path}")
+print(f"[DEBUG] .env exists: {dotenv_path.exists()}")
 
 
 def parse_schedule(input_filename: str, output_filename: str) -> list:
@@ -89,33 +96,37 @@ def parse_schedule(input_filename: str, output_filename: str) -> list:
 def upload_schedule_to_cloud():
     print("\n[CLOUD] Preparing to cloud sync...")
 
-    # 1. Connect to LocalStack S3 (Using Mac loopback address)
-    aws_endpoint = os.getenv(
-        "AWS_ENDPOINT_URL", "host.docker.internal:4566"
-    )  # For Docker use 'host.docker.internal' for local use 'http://127.0.0.1:4566'
+    try:
+        aws_access_key_id = st.secrets["AWS_ACCESS_KEY_ID"]
+        aws_secret_access_key = st.secrets["AWS_SECRET_ACCESS_KEY"]
+    except Exception:
+        aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID")
+        aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
-    s3 = boto3.client("s3", endpoint_url=aws_endpoint)
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        region_name="us-east-2",
+    )
 
-    bucket_name = "stream-schedule-bucket"
-    local_file = "SCHEDULE_v2.md"
-    cloud_filename = "live_schedule.md"
+    bucket_name = os.environ.get("AMAZON_S3_BUCKET_NAME") or "automated-stream-payloads"
+    local_file = str(Path(__file__).parent / "SCHEDULE.md")
+    cloud_filename = "SCHEDULE.md"
+
+    print(f"[DEBUG] Bucket:    {bucket_name if bucket_name else 'None ❌'}")
+    print(f"[DEBUG] Local file: {local_file}")
+    print(f"[DEBUG] File exists: {Path(local_file).exists()}")
 
     try:
-        # 2. Upload file to virtual s3 bucket
         s3.upload_file(local_file, bucket_name, cloud_filename)
-        print(f"[SUCCESS] Schedule uploaded to virtual AWS S3 as '{cloud_filename}'!")
-
+        print(f"[SUCCESS] Schedule uploaded to AWS S3 as '{cloud_filename}'!")
     except Exception as e:
         print(f"[ERROR] Cloud upload has failed: {e}")
 
 
 # Call the function at the very end of your script execution
 if __name__ == "__main__":
-    # parse_schedule("messy_notes.txt", "SCHEDULE.md")
-
-    # with open("SCHEDULE_v2.md", "w") as f:
-    # f.write(Path("SCHEDULE_v2.md").read_text())
-    # print("[SYSTEM] SCHEDULE_v2.md successfully generated on disk.")
-
-    # upload_schedule_to_cloud()
-    pass
+    streams = parse_schedule("messy_notes.txt", "SCHEDULE.md")
+    if streams:
+        upload_schedule_to_cloud()
