@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app.py .
+COPY v2_upgraded/generate_analytics.py .
+COPY v2_upgraded/stream_planner_v2.py .
+COPY v2_upgraded/upload_payloads.py .
+COPY v2_upgraded/messy_notes.txt .
+
+CMD ["python", "generate_analytics.py"]

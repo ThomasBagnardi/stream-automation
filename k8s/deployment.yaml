@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streamlit-dashboard
+  namespace: stream-pipeline
+  labels:
+    app: streamlit-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: streamlit-dashboard
+  template:
+    metadata:
+      labels:
+        app: streamlit-dashboard
+    spec:
+      containers:
+        - name: streamlit-dashboard
+          image: tbagnardi/stream-automation:latest
+          ports:
+            - containerPort: 8501
+          env:
+            # Pull sensitive values from the Secret
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AMAZON_S3_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: AMAZON_S3_BUCKET_NAME
+            # Pull non-sensitive values from the ConfigMap
+            - name: AWS_DEFAULT_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: pipeline-config
+                  key: AWS_DEFAULT_REGION
+            - name: STREAMLIT_SERVER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: pipeline-config
+                  key: STREAMLIT_SERVER_PORT
+            - name: STREAMLIT_SERVER_HEADLESS
+              valueFrom:
+                configMapKeyRef:
+                  name: pipeline-config
+                  key: STREAMLIT_SERVER_HEADLESS
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: streamlit-dashboard
+  namespace: stream-pipeline
+  labels:
+    app: streamlit-dashboard
+spec:
+  selector:
+    app: streamlit-dashboard
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8501
+  type: ClusterIP

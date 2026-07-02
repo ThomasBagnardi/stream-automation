@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: analytics-generator
+  namespace: stream-pipeline
+  labels:
+    app: analytics-generator
+spec:
+  schedule: "0 * * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: analytics-generator
+              image: tbagnardi/stream-automation:generator
+              env:
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-credentials
+                      key: AWS_ACCESS_KEY_ID
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-credentials
+                      key: AWS_SECRET_ACCESS_KEY
+                - name: AMAZON_S3_BUCKET_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-credentials
+                      key: AMAZON_S3_BUCKET_NAME
+                - name: AWS_DEFAULT_REGION
+                  valueFrom:
+                    configMapKeyRef:
+                      name: pipeline-config
+                      key: AWS_DEFAULT_REGION
+          restartPolicy: OnFailure
