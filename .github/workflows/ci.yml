@@ -63,6 +63,7 @@ jobs:
             --ignore=E501,W503,E402
 
   # ── Job 3: Validate Kubernetes Manifests ───────────────────────────────────
+  # ── Job 3: Validate Kubernetes Manifests ───────────────────────────────────
   validate-k8s:
     name: Validate Kubernetes Manifests
     runs-on: ubuntu-latest
@@ -71,19 +72,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install kubeval
+      - name: Install kubeconform
         run: |
-          wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
-          tar xf kubeval-linux-amd64.tar.gz
-          sudo mv kubeval /usr/local/bin
+          wget https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+          tar xf kubeconform-linux-amd64.tar.gz
+          sudo mv kubeconform /usr/local/bin
 
       - name: Validate manifests
         run: |
-          kubeval k8s/namespace.yaml
-          kubeval k8s/configmap.yaml
-          kubeval k8s/deployment.yaml
-          kubeval k8s/service.yaml
-          kubeval k8s/cronjob.yaml
+          kubeconform -strict -summary \
+            k8s/namespace.yaml \
+            k8s/configmap.yaml \
+            k8s/deployment.yaml \
+            k8s/service.yaml \
+            k8s/cronjob.yaml
           echo "All manifests validated successfully."
 
   # ── Job 4: Build Docker Images ─────────────────────────────────────────────

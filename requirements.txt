@@ -4,3 +4,6 @@ pandas
 plotly
 python-dotenv
 prometheus_client
+pytest
+pydantic
+watchdog
