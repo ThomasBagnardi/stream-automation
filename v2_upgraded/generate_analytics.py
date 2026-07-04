@@ -6,6 +6,8 @@ from datetime import datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
+from stream_planner_v2 import parse_schedule
+from upload_payloads import upload_stream_data
 
 dotenv_path = Path(__file__).parent / ".env"
 if not dotenv_path.exists():
@@ -15,10 +17,6 @@ print(f"[ENV] Loaded .env from: {dotenv_path}")
 
 BUCKET_NAME = os.environ.get("AMAZON_S3_BUCKET_NAME")
 print(f"[ENV] Bucket name: {BUCKET_NAME}")
-
-# --- Import existing pipeline modules ---
-from stream_planner_v2 import parse_schedule
-from upload_payloads import upload_stream_data
 
 
 def generate_analytics(streams: list) -> list:
