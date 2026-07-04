@@ -17,9 +17,13 @@ spec:
     spec:
       containers:
         - name: streamlit-dashboard
-          image: tbagnardi/stream-automation:latest
+          image: tbagnardi/stream-automation:v4
+          imagePullPolicy: Always
           ports:
-            - containerPort: 8501
+            - name: http
+              containerPort: 8501
+            - name: metrics
+              containerPort: 8000
           env:
             # Pull sensitive values from the Secret
             - name: AWS_ACCESS_KEY_ID

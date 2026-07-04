@@ -13,4 +13,8 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 8501
+    - name: metrics
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
   type: ClusterIP
